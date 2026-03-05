@@ -247,25 +247,27 @@ function generate() {
 }
 
 
-function downloadCanvas(canvas, filename) {
-    const dataURL = canvas.toDataURL("image/jpeg", 0.95);
+function downloadYT() {
+  const node = document.getElementById("thumbnailYT");
 
+  html2canvas(node, {useCORS:true}).then(canvas => {
     const link = document.createElement("a");
-    link.href = dataURL;
-    link.download = filename;
-
-    document.body.appendChild(link);
+    link.download = "thumbnail_yt.jpg";
+    link.href = canvas.toDataURL("image/jpeg", 0.95);
     link.click();
-    document.body.removeChild(link);
+  });
 }
 
-document.getElementById("downloadYT").addEventListener("click", function () {
-    downloadCanvas(document.getElementById("canvasYT"), "thumbnail_yt.jpg");
-});
+function downloadIG() {
+  const node = document.getElementById("thumbnailIG");
 
-document.getElementById("downloadIG").addEventListener("click", function () {
-    downloadCanvas(document.getElementById("canvasIG"), "thumbnail_ig.jpg");
-});
+  html2canvas(node, {useCORS:true}).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "thumbnail_ig.jpg";
+    link.href = canvas.toDataURL("image/jpeg", 0.95);
+    link.click();
+  });
+}
 </script>
 
 </body>
