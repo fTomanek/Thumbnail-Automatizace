@@ -27,7 +27,7 @@ body {
 }
 
 
-#thumbnail{
+#thumbnailYT{
   position: relative;
   width: 1920px;
   height: 1080px;
@@ -36,11 +36,36 @@ body {
   overflow: hidden;
 }
 
-#titleText {
+#thumbnailIG{
+  position: relative;
+  width: 1080px;
+  height: 1080px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  margin-top:40px;
+}
+
+#titleTextYT {
   position: absolute;
   width: 840px;
   top: 620px;
   right: 117px;
+  text-align: right;
+  color: white;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 73px;
+  line-height: 1.1;
+  white-space: pre-line;
+  letter-spacing: -0.5px;
+}
+
+#titleTextIG {
+  position: absolute;
+  width: 700px;
+  bottom: 120px;
+  right: 80px;
   text-align: right;
   color: white;
   font-family: 'Rubik', sans-serif;
@@ -57,10 +82,9 @@ body {
   font-size: 28px;
   padding: 12px 20px;
   text-align: center;
+  align-content: center;
   border-radius: 8px;
   margin-top: 10px;
-  display: inline-block;
-  min-width: 160px;
   color: white;
 }
 
@@ -86,10 +110,14 @@ body {
 }
 
 
-#bgUpload::file-selector-button {
+#bgUploadYT::file-selector-button, #bgUploadIG::file-selector-button {
   width: 100%;
   height: 50px;
   border: none;
+}
+
+#titleInput{
+  margin-top: 30px;
 }
 
 
@@ -100,30 +128,50 @@ body {
 <body>
 
 <div class="controls">
-  <input type="file" id="bgUpload" accept="image/*">
-  <textarea id="titleInput" rows="3" cols="40" placeholder="Enter title"></textarea><br><br>
-  <div id="styleIndicator">1 LINE</div><br>
-  <button id="generateBtn" onclick="generate()">Generate</button>
-  <button onclick="download()">Download JPG</button>
+<input type="file" id="bgUploadYT" accept="image/*">
+<input type="file" id="bgUploadIG" accept="image/*">
+
+<textarea id="titleInput" rows="3" cols="40" placeholder="Enter title"></textarea>
+
+<div id="styleIndicator">1 LINE</div>
+
+<button id="generateBtn" onclick="generate()">Generate</button>
+
+<button onclick="downloadYT()">Download YouTube JPG</button>
+<button onclick="downloadIG()">Download Instagram JPG</button>
+
 <br><br>
 </div>
 
-<div id="thumbnail">
-    <div id="titleText"></div>
+<div id="thumbnailYT">
+    <div id="titleTextYT"></div>
+</div>
+
+<div id="thumbnailIG">
+    <div id="titleTextIG"></div>
 </div>
 
 
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
-let bgImageData = "";
+let bgImageYT = "";
+let bgImageIG = "";
 
-
-document.getElementById("bgUpload").addEventListener("change", function(e) {
+document.getElementById("bgUploadYT").addEventListener("change", function(e) {
   const reader = new FileReader();
   reader.onload = function(event) {
-    bgImageData = event.target.result;
-    document.getElementById("thumbnail").style.backgroundImage = `url(${bgImageData})`;
+    bgImageYT = event.target.result;
+    document.getElementById("thumbnailYT").style.backgroundImage = `url(${bgImageYT})`;
+  };
+  reader.readAsDataURL(e.target.files[0]);
+});
+
+document.getElementById("bgUploadIG").addEventListener("change", function(e) {
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    bgImageIG = event.target.result;
+    document.getElementById("thumbnailIG").style.backgroundImage = `url(${bgImageIG})`;
   };
   reader.readAsDataURL(e.target.files[0]);
 });
@@ -133,21 +181,28 @@ const titleInput = document.getElementById("titleInput");
 
 titleInput.addEventListener("input", function() {
   generate();
+  equestAnimationFrame()
+
 });
 
 function generate() {
   const rawInput = document.getElementById("titleInput").value.trim();
   const upperText = rawInput.toUpperCase();
-  const titleElement = document.getElementById("titleText");
+  const titleElementYT = document.getElementById("titleTextYT");
+  const titleElementIG = document.getElementById("titleTextIG");
   const indicator = document.getElementById("styleIndicator");
 
   // Add quotes as one single text
-  const finalText = "„" + upperText + "“";
-  titleElement.textContent = finalText;
-  titleElement.style.whiteSpace = "pre-line";
+  titleElementYT.textContent = "„" + upperText + ".“";
+  titleElementIG.textContent = "„" + upperText + "“";
+  titleElementYT.style.whiteSpace = "pre-line";
+  titleElementIG.style.whiteSpace = "pre-line";
+
 
   // Set to 1 Line style first
-  titleElement.style.fontSize = "73px";
+  titleElementYT.style.fontSize = "73px";
+  titleElementIG.style.fontSize = "73px";
+
   indicator.className = "";
   indicator.textContent = "1 LINE";
   indicator.classList.add("style-1");
@@ -160,27 +215,27 @@ function generate() {
   // Use requestAnimationFrame to wait for the DOM to update
   requestAnimationFrame(() => {
     // Get computed line height in px
-    const computedStyle = window.getComputedStyle(titleElement);
+    const computedStyle = window.getComputedStyle(titleElementYT);
     const fontSize1 = 73, fontSize2 = 60, fontSize3 = 52;
     const lineHeight = parseFloat(computedStyle.lineHeight) || 1.1 * fontSize1;
     // The titleElement's clientHeight
-    let h = titleElement.clientHeight;
+    let h = titleElementYT.clientHeight;
     // For 1 line: should fit within 1 line
     let fits = h <= Math.ceil(lineHeight * 1.05); // small fudge
     if (!fits) {
       // Try 2 Line style
-      titleElement.style.fontSize = fontSize2 + "px";
+      titleElementYT.style.fontSize = fontSize2 + "px";
       indicator.className = "";
       indicator.textContent = "2 LINE";
       indicator.classList.add("style-2");
       requestAnimationFrame(() => {
-        const style2 = window.getComputedStyle(titleElement);
+        const style2 = window.getComputedStyle(titleElementYT);
         const lh2 = parseFloat(style2.lineHeight) || 1.1 * fontSize2;
-        let h2 = titleElement.clientHeight;
+        let h2 = titleElementYT.clientHeight;
         let fits2 = h2 <= Math.ceil(lh2 * 2.05);
         if (!fits2) {
           // Try 3 Line style
-          titleElement.style.fontSize = fontSize3 + "px";
+          titleElementYT.style.fontSize = fontSize3 + "px";
           indicator.className = "";
           indicator.textContent = "3 LINE";
           indicator.classList.add("style-3");
@@ -191,22 +246,40 @@ function generate() {
   });
 }
 
-function download() {
-  html2canvas(document.querySelector("#thumbnail"), {
+function downloadYT() {
+  html2canvas(document.querySelector("#thumbnailYT"), {
     width: 1920,
     height: 1080,
     scale: 1
   }).then(canvas => {
     const imageData = canvas.toDataURL("image/jpeg", 1.0);
-
-    // iOS Safari fix: open image in new tab instead of forcing download
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
     if (isIOS) {
       window.open(imageData, '_blank');
     } else {
       const link = document.createElement("a");
-      link.download = "thumbnail.jpg";
+      link.download = "thumbnail_youtube.jpg";
+      link.href = imageData;
+      link.click();
+    }
+  });
+}
+
+function downloadIG() {
+  html2canvas(document.querySelector("#thumbnailIG"), {
+    width: 1080,
+    height: 1080,
+    scale: 1
+  }).then(canvas => {
+    const imageData = canvas.toDataURL("image/jpeg", 1.0);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    if (isIOS) {
+      window.open(imageData, '_blank');
+    } else {
+      const link = document.createElement("a");
+      link.download = "thumbnail_instagram.jpg";
       link.href = imageData;
       link.click();
     }
