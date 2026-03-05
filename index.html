@@ -247,43 +247,21 @@ function generate() {
 }
 
 function downloadYT() {
-  html2canvas(document.querySelector("#thumbnailYT"), {
-    width: 1920,
-    height: 1080,
-    scale: 1
-  }).then(canvas => {
-    const imageData = canvas.toDataURL("image/jpeg", 1.0);
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const canvas = document.getElementById("canvasYT");
 
-    if (isIOS) {
-      window.open(imageData, '_blank');
-    } else {
-      const link = document.createElement("a");
-      link.download = "thumbnail_youtube.jpg";
-      link.href = imageData;
-      link.click();
-    }
-  });
+    canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+    }, "image/jpeg", 0.95);
 }
 
 function downloadIG() {
-  html2canvas(document.querySelector("#thumbnailIG"), {
-    width: 1080,
-    height: 1080,
-    scale: 1
-  }).then(canvas => {
-    const imageData = canvas.toDataURL("image/jpeg", 1.0);
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const canvas = document.getElementById("canvasIG");
 
-    if (isIOS) {
-      window.open(imageData, '_blank');
-    } else {
-      const link = document.createElement("a");
-      link.download = "thumbnail_instagram.jpg";
-      link.href = imageData;
-      link.click();
-    }
-  });
+    canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+    }, "image/jpeg", 0.95);
 }
 </script>
 
