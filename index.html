@@ -48,7 +48,8 @@ body {
   background-size: cover;
   background-position: center;
   overflow: hidden;
-  margin-top:40px;
+  justify-content: center;
+  justify-items: center;
 }
 
 #titleTextYT {
@@ -68,18 +69,18 @@ body {
 
 #titleTextIG {
   position: absolute;
-  width: 80%;
-  top: 50%;
+  width: 2600px;
+  height: auto;
+  top: 2520px;
   left: 50%;
-  transform: translate(-50%, -50%);
   text-align: center;
-  color: white;
+  color: rgb(0, 0, 0);
+  transform: translate(-50%, -50%);
   font-family: 'Rubik', sans-serif;
   font-weight: 500;
-  font-size: 73px;
-  line-height: 1.1;
+  font-size: 180px;
+  line-height: 1;
   white-space: pre-line;
-  letter-spacing: -0.5px;
 }
 
 #styleIndicator {
@@ -156,7 +157,7 @@ body {
 
   <button id="generateBtn" onclick="generate()">Generate</button>
     <div id="downloadSeparate" >
-      <button onclick="downloadYT()">Download TY</button>
+      <button onclick="downloadYT()">Download YT</button>
       <button onclick="downloadIG()">Download IG</button>
     </div>
   <button onclick="downloadBoth()">Download</button>
@@ -228,14 +229,13 @@ function generate() {
 
   // Add quotes as one single text
   titleElementYT.textContent = "„" + upperText + ".“";
+  // Instagram uses the same text but without quotes
   titleElementIG.textContent = upperText;
   titleElementYT.style.whiteSpace = "pre-line";
-  titleElementIG.style.whiteSpace = "pre-line";
 
 
-  // Set to 1 Line style first
+  // Set YT default style
   titleElementYT.style.fontSize = "73px";
-  titleElementIG.style.fontSize = "73px";
 
   indicator.className = "";
   indicator.textContent = "1 LINE";
