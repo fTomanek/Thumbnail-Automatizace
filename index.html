@@ -16,14 +16,19 @@ body {
 }
 
 .controls {
-    width: 100%;
-    height: auto;
-    margin: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  height: auto;
+  margin: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
+}
+
+#bgUploads{
+  display: flex;
+  gap: 20px;
 }
 
 
@@ -38,8 +43,8 @@ body {
 
 #thumbnailIG{
   position: relative;
-  width: 1080px;
-  height: 1080px;
+  width: 3000px;
+  height: 3000px;
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -63,10 +68,11 @@ body {
 
 #titleTextIG {
   position: absolute;
-  width: 700px;
-  bottom: 120px;
-  right: 80px;
-  text-align: right;
+  width: 80%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
   color: white;
   font-family: 'Rubik', sans-serif;
   font-weight: 500;
@@ -106,18 +112,29 @@ body {
   margin-bottom: 20px;
   justify-self: center;
   font-weight: 600;
-
+  font-size: 16px;
+  border-radius: 10px;
 }
 
 
 #bgUploadYT::file-selector-button, #bgUploadIG::file-selector-button {
   width: 100%;
   height: 50px;
-  border: none;
 }
 
 #titleInput{
   margin-top: 30px;
+}
+
+#downloadSeparate{
+  display: flex;
+  gap: 20px;
+  height: 35px;
+}
+#downloadSeparate *{
+  height: 35px;
+  background-color: rgb(193, 193, 193);
+  font-size: 13px;
 }
 
 
@@ -128,19 +145,22 @@ body {
 <body>
 
 <div class="controls">
-<input type="file" id="bgUploadYT" accept="image/*">
-<input type="file" id="bgUploadIG" accept="image/*">
+  <div id="bgUploads">
+    <input type="file" id="bgUploadYT" accept="image/*">
+    <input type="file" id="bgUploadIG" accept="image/*">
+  </div>
+  
+  <textarea id="titleInput" rows="3" cols="40" placeholder="Enter title"></textarea>
 
-<textarea id="titleInput" rows="3" cols="40" placeholder="Enter title"></textarea>
+  <div id="styleIndicator">1 LINE</div>
 
-<div id="styleIndicator">1 LINE</div>
+  <button id="generateBtn" onclick="generate()">Generate</button>
+    <div id="downloadSeparate" >
+      <button onclick="downloadYT()">Download TY</button>
+      <button onclick="downloadIG()">Download IG</button>
+    </div>
+  <button onclick="downloadBoth()">Download</button>
 
-<button id="generateBtn" onclick="generate()">Generate</button>
-
-<button onclick="downloadYT()">Download YouTube JPG</button>
-<button onclick="downloadIG()">Download Instagram JPG</button>
-
-<br><br>
 </div>
 
 <div id="thumbnailYT">
@@ -157,23 +177,37 @@ body {
 <script>
 let bgImageYT = "";
 let bgImageIG = "";
+let bgNameYT = "thumbnail";
+let bgNameIG = "thumbnail";
 
 document.getElementById("bgUploadYT").addEventListener("change", function(e) {
+  const file = e.target.files[0];
   const reader = new FileReader();
+
+  // store file name without extension
+  bgNameYT = file.name.replace(/\.[^/.]+$/, "");
+
   reader.onload = function(event) {
     bgImageYT = event.target.result;
     document.getElementById("thumbnailYT").style.backgroundImage = `url(${bgImageYT})`;
   };
-  reader.readAsDataURL(e.target.files[0]);
+
+  reader.readAsDataURL(file);
 });
 
 document.getElementById("bgUploadIG").addEventListener("change", function(e) {
+  const file = e.target.files[0];
   const reader = new FileReader();
+
+  // store file name without extension
+  bgNameIG = file.name.replace(/\.[^/.]+$/, "");
+
   reader.onload = function(event) {
     bgImageIG = event.target.result;
     document.getElementById("thumbnailIG").style.backgroundImage = `url(${bgImageIG})`;
   };
-  reader.readAsDataURL(e.target.files[0]);
+
+  reader.readAsDataURL(file);
 });
 
 // Auto-generate instantly when text changes
@@ -194,7 +228,7 @@ function generate() {
 
   // Add quotes as one single text
   titleElementYT.textContent = "„" + upperText + ".“";
-  titleElementIG.textContent = "„" + upperText + "“";
+  titleElementIG.textContent = upperText;
   titleElementYT.style.whiteSpace = "pre-line";
   titleElementIG.style.whiteSpace = "pre-line";
 
@@ -252,7 +286,7 @@ function downloadYT() {
 
   html2canvas(node, {useCORS:true}).then(canvas => {
     const link = document.createElement("a");
-    link.download = "thumbnail_yt.jpg";
+    link.download = bgNameYT + "_Upload.jpg";
     link.href = canvas.toDataURL("image/jpeg", 0.95);
     link.click();
   });
@@ -263,9 +297,31 @@ function downloadIG() {
 
   html2canvas(node, {useCORS:true}).then(canvas => {
     const link = document.createElement("a");
-    link.download = "thumbnail_ig.jpg";
+    link.download = bgNameIG + "_Upload.jpg";
     link.href = canvas.toDataURL("image/jpeg", 0.95);
     link.click();
+  });
+}
+
+function downloadBoth() {
+  const nodeYT = document.getElementById("thumbnailYT");
+  const nodeIG = document.getElementById("thumbnailIG");
+
+  html2canvas(nodeYT, {useCORS:true}).then(canvasYT => {
+    const linkYT = document.createElement("a");
+    linkYT.download = bgNameYT + "_Upload.jpg";
+    linkYT.href = canvasYT.toDataURL("image/jpeg", 0.95);
+    linkYT.click();
+
+    // small delay so iOS/macOS allow the second download
+    setTimeout(() => {
+      html2canvas(nodeIG, {useCORS:true}).then(canvasIG => {
+        const linkIG = document.createElement("a");
+        linkIG.download = bgNameIG + "_Upload.jpg";
+        linkIG.href = canvasIG.toDataURL("image/jpeg", 0.95);
+        linkIG.click();
+      });
+    }, 300);
   });
 }
 </script>
