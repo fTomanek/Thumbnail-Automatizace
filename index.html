@@ -246,23 +246,26 @@ function generate() {
   });
 }
 
-function downloadYT() {
-    const canvas = document.getElementById("canvasYT");
 
-    canvas.toBlob(function(blob) {
-        const url = URL.createObjectURL(blob);
-        window.open(url, "_blank");
-    }, "image/jpeg", 0.95);
+function downloadCanvas(canvas, filename) {
+    const dataURL = canvas.toDataURL("image/jpeg", 0.95);
+
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
-function downloadIG() {
-    const canvas = document.getElementById("canvasIG");
+document.getElementById("downloadYT").addEventListener("click", function () {
+    downloadCanvas(document.getElementById("canvasYT"), "thumbnail_yt.jpg");
+});
 
-    canvas.toBlob(function(blob) {
-        const url = URL.createObjectURL(blob);
-        window.open(url, "_blank");
-    }, "image/jpeg", 0.95);
-}
+document.getElementById("downloadIG").addEventListener("click", function () {
+    downloadCanvas(document.getElementById("canvasIG"), "thumbnail_ig.jpg");
+});
 </script>
 
 </body>
