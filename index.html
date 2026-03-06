@@ -216,8 +216,6 @@ const titleInput = document.getElementById("titleInput");
 
 titleInput.addEventListener("input", function() {
   generate();
-  equestAnimationFrame()
-
 });
 
 function generate() {
@@ -280,15 +278,25 @@ function generate() {
   });
 }
 
+function isiOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
 
 function downloadYT() {
   const node = document.getElementById("thumbnailYT");
 
   html2canvas(node, {useCORS:true}).then(canvas => {
-    const link = document.createElement("a");
-    link.download = bgNameYT + "_Upload.jpg";
-    link.href = canvas.toDataURL("image/jpeg", 0.95);
-    link.click();
+    const dataURL = canvas.toDataURL("image/jpeg", 0.95);
+
+    if (isiOS()) {
+      // iPhone Safari cannot reliably download blobs, open image instead
+      window.open(dataURL, "_blank");
+    } else {
+      const link = document.createElement("a");
+      link.download = bgNameYT + "_Upload.jpg";
+      link.href = dataURL;
+      link.click();
+    }
   });
 }
 
@@ -296,10 +304,16 @@ function downloadIG() {
   const node = document.getElementById("thumbnailIG");
 
   html2canvas(node, {useCORS:true}).then(canvas => {
-    const link = document.createElement("a");
-    link.download = bgNameIG + "_Upload.jpg";
-    link.href = canvas.toDataURL("image/jpeg", 0.95);
-    link.click();
+    const dataURL = canvas.toDataURL("image/jpeg", 0.95);
+
+    if (isiOS()) {
+      window.open(dataURL, "_blank");
+    } else {
+      const link = document.createElement("a");
+      link.download = bgNameIG + "_Upload.jpg";
+      link.href = dataURL;
+      link.click();
+    }
   });
 }
 
@@ -308,18 +322,30 @@ function downloadBoth() {
   const nodeIG = document.getElementById("thumbnailIG");
 
   html2canvas(nodeYT, {useCORS:true}).then(canvasYT => {
-    const linkYT = document.createElement("a");
-    linkYT.download = bgNameYT + "_Upload.jpg";
-    linkYT.href = canvasYT.toDataURL("image/jpeg", 0.95);
-    linkYT.click();
+    const dataURLYT = canvasYT.toDataURL("image/jpeg", 0.95);
+
+    if (isiOS()) {
+      window.open(dataURLYT, "_blank");
+    } else {
+      const linkYT = document.createElement("a");
+      linkYT.download = bgNameYT + "_Upload.jpg";
+      linkYT.href = dataURLYT;
+      linkYT.click();
+    }
 
     // small delay so iOS/macOS allow the second download
     setTimeout(() => {
       html2canvas(nodeIG, {useCORS:true}).then(canvasIG => {
-        const linkIG = document.createElement("a");
-        linkIG.download = bgNameIG + "_Upload.jpg";
-        linkIG.href = canvasIG.toDataURL("image/jpeg", 0.95);
-        linkIG.click();
+        const dataURLIG = canvasIG.toDataURL("image/jpeg", 0.95);
+
+        if (isiOS()) {
+          window.open(dataURLIG, "_blank");
+        } else {
+          const linkIG = document.createElement("a");
+          linkIG.download = bgNameIG + "_Upload.jpg";
+          linkIG.href = dataURLIG;
+          linkIG.click();
+        }
       });
     }, 300);
   });
