@@ -294,7 +294,8 @@ function downloadYT() {
     const dataURL = canvas.toDataURL("image/jpeg", 0.95);
 
     if (isiOS()) {
-      newTab.location.href = dataURL;
+      newTab.document.write('<img src="' + dataURL + '" style="width:100%;height:auto;">');
+      newTab.document.close();
     } else {
       const link = document.createElement("a");
       link.download = bgNameYT + "_Upload.jpg";
@@ -316,7 +317,8 @@ function downloadIG() {
     const dataURL = canvas.toDataURL("image/jpeg", 0.95);
 
     if (isiOS()) {
-      newTab.location.href = dataURL;
+      newTab.document.write('<img src="' + dataURL + '" style="width:100%;height:auto;">');
+      newTab.document.close();
     } else {
       const link = document.createElement("a");
       link.download = bgNameIG + "_Upload.jpg";
@@ -339,7 +341,8 @@ function downloadBoth() {
     const dataURLYT = canvasYT.toDataURL("image/jpeg", 0.95);
 
     if (isiOS()) {
-      newTabYT.location.href = dataURLYT;
+      newTabYT.document.write('<img src="' + dataURLYT + '" style="width:100%;height:auto;">');
+      newTabYT.document.close();
     } else {
       const linkYT = document.createElement("a");
       linkYT.download = bgNameYT + "_Upload.jpg";
@@ -354,7 +357,8 @@ function downloadBoth() {
 
         if (isiOS()) {
           const newTabIG = window.open("about:blank", "_blank");
-          newTabIG.location.href = dataURLIG;
+          newTabIG.document.write('<img src="' + dataURLIG + '" style="width:100%;height:auto;">');
+          newTabIG.document.close();
         } else {
           const linkIG = document.createElement("a");
           linkIG.download = bgNameIG + "_Upload.jpg";
