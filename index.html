@@ -354,11 +354,16 @@ function downloadIG(){
 
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.font = style.fontSize + " Rubik";
 
     const lineHeight = parseFloat(style.lineHeight);
 
-    let y = 1500;
+    const centerY = 2520; // same vertical anchor as CSS
+
+    const totalHeight = (text.length - 1) * lineHeight;
+
+    let y = centerY - totalHeight / 2;
 
     text.forEach(line=>{
       ctx.fillText(line,1500,y);
