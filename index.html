@@ -278,53 +278,37 @@ function generate() {
   });
 }
 
-function isiOS() {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-}
-
 function downloadYT() {
   const node = document.getElementById("thumbnailYT");
-
-  let newTab = null;
-  if (isiOS()) {
-    newTab = window.open("about:blank", "_blank");
-  }
 
   html2canvas(node, {useCORS:true}).then(canvas => {
     const dataURL = canvas.toDataURL("image/jpeg", 0.95);
 
-    if (isiOS()) {
-      newTab.document.write('<img src="' + dataURL + '" style="width:100%;height:auto;">');
-      newTab.document.close();
-    } else {
-      const link = document.createElement("a");
-      link.download = bgNameYT + "_Upload.jpg";
-      link.href = dataURL;
-      link.click();
-    }
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.target = "_blank";
+    link.download = bgNameYT + "_Upload.jpg";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 }
 
 function downloadIG() {
   const node = document.getElementById("thumbnailIG");
 
-  let newTab = null;
-  if (isiOS()) {
-    newTab = window.open("about:blank", "_blank");
-  }
-
   html2canvas(node, {useCORS:true}).then(canvas => {
     const dataURL = canvas.toDataURL("image/jpeg", 0.95);
 
-    if (isiOS()) {
-      newTab.document.write('<img src="' + dataURL + '" style="width:100%;height:auto;">');
-      newTab.document.close();
-    } else {
-      const link = document.createElement("a");
-      link.download = bgNameIG + "_Upload.jpg";
-      link.href = dataURL;
-      link.click();
-    }
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.target = "_blank";
+    link.download = bgNameIG + "_Upload.jpg";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 }
 
@@ -332,39 +316,30 @@ function downloadBoth() {
   const nodeYT = document.getElementById("thumbnailYT");
   const nodeIG = document.getElementById("thumbnailIG");
 
-  let newTabYT = null;
-  if (isiOS()) {
-    newTabYT = window.open("about:blank", "_blank");
-  }
-
   html2canvas(nodeYT, {useCORS:true}).then(canvasYT => {
     const dataURLYT = canvasYT.toDataURL("image/jpeg", 0.95);
 
-    if (isiOS()) {
-      newTabYT.document.write('<img src="' + dataURLYT + '" style="width:100%;height:auto;">');
-      newTabYT.document.close();
-    } else {
-      const linkYT = document.createElement("a");
-      linkYT.download = bgNameYT + "_Upload.jpg";
-      linkYT.href = dataURLYT;
-      linkYT.click();
-    }
+    const linkYT = document.createElement("a");
+    linkYT.href = dataURLYT;
+    linkYT.target = "_blank";
+    linkYT.download = bgNameYT + "_Upload.jpg";
 
-    // small delay so iOS/macOS allow the second download
+    document.body.appendChild(linkYT);
+    linkYT.click();
+    document.body.removeChild(linkYT);
+
     setTimeout(() => {
       html2canvas(nodeIG, {useCORS:true}).then(canvasIG => {
         const dataURLIG = canvasIG.toDataURL("image/jpeg", 0.95);
 
-        if (isiOS()) {
-          const newTabIG = window.open("about:blank", "_blank");
-          newTabIG.document.write('<img src="' + dataURLIG + '" style="width:100%;height:auto;">');
-          newTabIG.document.close();
-        } else {
-          const linkIG = document.createElement("a");
-          linkIG.download = bgNameIG + "_Upload.jpg";
-          linkIG.href = dataURLIG;
-          linkIG.click();
-        }
+        const linkIG = document.createElement("a");
+        linkIG.href = dataURLIG;
+        linkIG.target = "_blank";
+        linkIG.download = bgNameIG + "_Upload.jpg";
+
+        document.body.appendChild(linkIG);
+        linkIG.click();
+        document.body.removeChild(linkIG);
       });
     }, 300);
   });
