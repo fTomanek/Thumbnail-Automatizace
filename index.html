@@ -69,7 +69,7 @@ body {
 
 #titleTextIG {
   position: absolute;
-  width: 2600px;
+  width: 2550px;
   height: auto;
   top: 2520px;
   left: 50%;
@@ -348,7 +348,25 @@ function downloadIG(){
     ctx.drawImage(img,0,0,3000,3000);
 
     const textElement = document.getElementById("titleTextIG");
-    const text = textElement.textContent.split("\n");
+    const rawText = textElement.textContent;
+    const words = rawText.split(" ");
+    const maxWidth = 2550;
+    let lines = [];
+    let currentLine = "";
+
+    words.forEach(word => {
+      const testLine = currentLine ? currentLine + " " + word : word;
+      const metrics = ctx.measureText(testLine);
+
+      if (metrics.width > maxWidth && currentLine !== "") {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    if (currentLine) lines.push(currentLine);
 
     const style = window.getComputedStyle(textElement);
 
@@ -361,11 +379,11 @@ function downloadIG(){
 
     const centerY = 2520; // same vertical anchor as CSS
 
-    const totalHeight = (text.length - 1) * lineHeight;
+    const totalHeight = (lines.length - 1) * lineHeight;
 
     let y = centerY - totalHeight / 2;
 
-    text.forEach(line=>{
+    lines.forEach(line=>{
       ctx.fillText(line,1500,y);
       y += lineHeight;
     });
