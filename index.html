@@ -278,71 +278,45 @@ function generate() {
   });
 }
 
+function exportNodeAsJpeg(node, filename) {
+  html2canvas(node, {useCORS:true}).then(canvas => {
+    canvas.toBlob(function(blob) {
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // cleanup
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, "image/jpeg", 0.95);
+  });
+}
+
 function downloadYT() {
   const node = document.getElementById("thumbnailYT");
-
-  html2canvas(node, {useCORS:true}).then(canvas => {
-    const dataURL = canvas.toDataURL("image/jpeg", 0.95);
-
-    const link = document.createElement("a");
-    link.href = dataURL;
-    link.target = "_blank";
-    link.download = bgNameYT + "_Upload.jpg";
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
+  exportNodeAsJpeg(node, bgNameYT + "_Upload.jpg");
 }
 
 function downloadIG() {
   const node = document.getElementById("thumbnailIG");
-
-  html2canvas(node, {useCORS:true}).then(canvas => {
-    const dataURL = canvas.toDataURL("image/jpeg", 0.95);
-
-    const link = document.createElement("a");
-    link.href = dataURL;
-    link.target = "_blank";
-    link.download = bgNameIG + "_Upload.jpg";
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
+  exportNodeAsJpeg(node, bgNameIG + "_Upload.jpg");
 }
 
 function downloadBoth() {
   const nodeYT = document.getElementById("thumbnailYT");
   const nodeIG = document.getElementById("thumbnailIG");
 
-  html2canvas(nodeYT, {useCORS:true}).then(canvasYT => {
-    const dataURLYT = canvasYT.toDataURL("image/jpeg", 0.95);
+  exportNodeAsJpeg(nodeYT, bgNameYT + "_Upload.jpg");
 
-    const linkYT = document.createElement("a");
-    linkYT.href = dataURLYT;
-    linkYT.target = "_blank";
-    linkYT.download = bgNameYT + "_Upload.jpg";
-
-    document.body.appendChild(linkYT);
-    linkYT.click();
-    document.body.removeChild(linkYT);
-
-    setTimeout(() => {
-      html2canvas(nodeIG, {useCORS:true}).then(canvasIG => {
-        const dataURLIG = canvasIG.toDataURL("image/jpeg", 0.95);
-
-        const linkIG = document.createElement("a");
-        linkIG.href = dataURLIG;
-        linkIG.target = "_blank";
-        linkIG.download = bgNameIG + "_Upload.jpg";
-
-        document.body.appendChild(linkIG);
-        linkIG.click();
-        document.body.removeChild(linkIG);
-      });
-    }, 300);
-  });
+  // slight delay so browsers allow the second download
+  setTimeout(() => {
+    exportNodeAsJpeg(nodeIG, bgNameIG + "_Upload.jpg");
+  }, 400);
 }
 </script>
 
