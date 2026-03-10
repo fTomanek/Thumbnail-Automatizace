@@ -26,6 +26,22 @@ body {
 
 }
 
+#showSelect {
+  width: 80%;
+  height: 50px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+#commentatorWrap select {
+  width: 100%;
+  height: 50px;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 10px;
+}
 
 #bgUploads{
   display: flex;
@@ -109,6 +125,20 @@ body {
   white-space: pre-line;
   letter-spacing: -0.5px;
 }
+#commentatorTextYT {
+  position: absolute;
+  width: 840px;
+  top: 930px;
+  right: 117px;
+  text-align: right;
+  color: white;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 1.1;
+  white-space: pre-line;
+  letter-spacing: -0.5px;
+}
 
 #titleTextIG {
   position: absolute;
@@ -122,6 +152,21 @@ body {
   font-family: 'Rubik', sans-serif;
   font-weight: 500;
   font-size: 180px;
+  line-height: 1;
+  white-space: pre-line;
+}
+#commentatorTextIG {
+  position: absolute;
+  width: 2550px;
+  height: auto;
+  top: 2810px;
+  left: 50%;
+  text-align: center;
+  color: rgb(0, 0, 0);
+  transform: translate(-50%, -50%);
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 90px;
   line-height: 1;
   white-space: pre-line;
 }
@@ -236,6 +281,22 @@ body {
 <body>
 
 <div class="controls">
+  <select id="showSelect">
+    <option value="">Select show</option>
+    <option value="PS">PS</option>
+    <option value="UC">UC</option>
+    <option value="ZS">ZS</option>
+  </select>
+
+  <div id="commentatorWrap" style="display:none; width:80%;">
+    <select id="commentatorSelect">
+      <option value="">Select commentator</option>
+      <option value="Karolina Stonjeková">Karolina Stonjeková</option>
+      <option value="Petr Holec">Petr Holec</option>
+      <option value="Petr Kolář">Petr Kolář</option>
+    </select>
+  </div>
+
   <div id="bgUploads">
     <input type="file" id="bgUploadYT" accept="image/*">
     <input type="file" id="bgUploadIG" accept="image/*">
@@ -245,7 +306,7 @@ body {
 
   <div id="photoPositionControls">
     <label>PHOTO POSITION</label>
-    <input type="range" id="photoSlider" min="-860" max="-200" value="-700" oninput="setPhotoOffset(parseInt(this.value))">
+    <input type="range" id="photoSlider" min="-860" max="-140" value="-720" oninput="setPhotoOffset(parseInt(this.value))">
     <div id="photoNudgeButtons">
       <button onclick="nudgePhoto(-5)">◀◀ 5px</button>
       <button onclick="nudgePhoto(-2)">◀ 2px</button>
@@ -271,6 +332,7 @@ body {
         <img id="photoYT" src="" style="display:none;">
         <img id="graphicsOverlayYT" src="UC_Graphics.png" style="position:absolute;top:0;left:0;width:1920px;height:1080px;pointer-events:none;">
         <div id="titleTextYT"></div>
+        <div id="commentatorTextYT"></div>
     </div>
   </div>
 </div>
@@ -281,6 +343,7 @@ body {
         <img id="photoIG" src="" style="display:none;">
         <img id="graphicsOverlayIG" src="UC_Graphics.png" style="position:absolute;top:0;left:0;width:3000px;height:3000px;pointer-events:none;">
         <div id="titleTextIG"></div>
+        <div id="commentatorTextIG"></div>
     </div>
   </div>
 </div>
@@ -288,22 +351,47 @@ body {
 
 
 <script>
-// --- REPLACE THIS STRING WITH YOUR BASE64-ENCODED GRAPHICS PNG ---
-const GRAPHICS_YT = "UC_Graphics.png";
-// -----------------------------------------------------------------
-
-// Set graphics overlay in preview
-window.addEventListener("DOMContentLoaded", function() {
-  if (GRAPHICS_YT !== "UC_Graphics.png") {
-    document.getElementById("graphicsOverlayYT").src = GRAPHICS_YT;
-  }
-});
 
 let bgImageYT = "";
 let bgImageIG = "";
 let bgNameYT = "thumbnail";
 let bgNameIG = "thumbnail";
 let photoOffsetYT = 0;
+
+let currentShow = "";
+let currentGraphicsYT = "";
+let currentGraphicsIG = "";
+let currentCommentator = "";
+
+function updateGraphicsByShow() {
+  const ytOverlay = document.getElementById("graphicsOverlayYT");
+  const igOverlay = document.getElementById("graphicsOverlayIG");
+
+  if (!currentShow) {
+    ytOverlay.removeAttribute("src");
+    igOverlay.removeAttribute("src");
+    return;
+  }
+
+  currentGraphicsYT = `${currentShow}_Graphics_YT.png`;
+  currentGraphicsIG = `${currentShow}_Graphics_IG.png`;
+
+  ytOverlay.src = currentGraphicsYT;
+  igOverlay.src = currentGraphicsIG;
+}
+
+function updateCommentatorVisibility() {
+  const wrap = document.getElementById("commentatorWrap");
+  const select = document.getElementById("commentatorSelect");
+
+  if (currentShow === "PS") {
+    wrap.style.display = "block";
+  } else {
+    wrap.style.display = "none";
+    select.value = "";
+    currentCommentator = "";
+  }
+}
 
 document.getElementById("bgUploadYT").addEventListener("change", function(e) {
   const file = e.target.files[0];
@@ -341,6 +429,18 @@ document.getElementById("bgUploadIG").addEventListener("change", function(e) {
   };
 
   reader.readAsDataURL(file);
+});
+
+document.getElementById("showSelect").addEventListener("change", function(e) {
+  currentShow = e.target.value;
+  updateGraphicsByShow();
+  updateCommentatorVisibility();
+  generate();
+});
+
+document.getElementById("commentatorSelect").addEventListener("change", function(e) {
+  currentCommentator = e.target.value;
+  generate();
 });
 
 // Auto-generate instantly when text changes
@@ -386,6 +486,8 @@ function generate() {
   const upperText = rawInput.toUpperCase();
   const titleElementYT = document.getElementById("titleTextYT");
   const titleElementIG = document.getElementById("titleTextIG");
+  const commentatorElementYT = document.getElementById("commentatorTextYT");
+  const commentatorElementIG = document.getElementById("commentatorTextIG");
   const indicator = document.getElementById("styleIndicator");
 
   // Add quotes as one single text
@@ -394,6 +496,9 @@ function generate() {
   titleElementIG.textContent = upperText;
   titleElementYT.style.whiteSpace = "pre-line";
 
+  const commentatorText = currentShow === "PS" && currentCommentator ? currentCommentator : "";
+  commentatorElementYT.textContent = commentatorText;
+  commentatorElementIG.textContent = commentatorText;
 
   // Set YT default style
   titleElementYT.style.fontSize = "73px";
@@ -474,6 +579,15 @@ function drawTextYT(ctx) {
     ctx.fillText(line, 1920 - 117, y);
     y += lineHeight;
   });
+  const commentatorElement = document.getElementById("commentatorTextYT");
+  const commentatorText = commentatorElement.textContent;
+
+  if (commentatorText) {
+    const commentatorStyle = window.getComputedStyle(commentatorElement);
+    ctx.font = commentatorStyle.fontSize + " Rubik";
+    ctx.fillStyle = commentatorStyle.color;
+    ctx.fillText(commentatorText, 1920 - 117, 930);
+  }
 }
 
 function downloadYT(){
@@ -491,15 +605,16 @@ function downloadYT(){
 
     ctx.drawImage(img, photoOffsetYT, 0, 1920, 1080);
 
-    // Draw Graphics overlay (if loaded)
-    if (GRAPHICS_YT !== "GRAPHICS_PLACEHOLDER") {
+    const overlaySrc = document.getElementById("graphicsOverlayYT").getAttribute("src");
+
+    if (overlaySrc) {
       const gfx = new Image();
       gfx.onload = function() {
         ctx.drawImage(gfx,0,0,1920,1080);
         drawTextYT(ctx);
         downloadCanvas(canvas,bgNameYT+"_Upload.jpg");
       };
-      gfx.src = GRAPHICS_YT;
+      gfx.src = overlaySrc;
     } else {
       drawTextYT(ctx);
       downloadCanvas(canvas,bgNameYT+"_Upload.jpg");
@@ -538,59 +653,60 @@ function downloadIG(){
 
     ctx.drawImage(img, x, y, drawWidth, drawHeight);
 
-    function drawIGText() {
-      const textElement = document.getElementById("titleTextIG");
-      const rawText = textElement.textContent;
-      const words = rawText.split(" ");
-      const maxWidth = 2550;
-      let lines = [];
-      let currentLine = "";
+    const textElement = document.getElementById("titleTextIG");
+    const rawText = textElement.textContent;
+    const words = rawText.split(" ");
+    const maxWidth = 2550;
+    let lines = [];
+    let currentLine = "";
 
-      const style = window.getComputedStyle(textElement);
-      ctx.fillStyle = "black";
+    words.forEach(word => {
+      const testLine = currentLine ? currentLine + " " + word : word;
+      const metrics = ctx.measureText(testLine);
+
+      if (metrics.width > maxWidth && currentLine !== "") {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    if (currentLine) lines.push(currentLine);
+
+    const style = window.getComputedStyle(textElement);
+
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = style.fontSize + " Rubik";
+
+    const lineHeight = parseFloat(style.lineHeight);
+
+    const centerY = 2520; // same vertical anchor as CSS
+
+    const totalHeight = (lines.length - 1) * lineHeight;
+
+    let textY = centerY - totalHeight / 2;
+
+    lines.forEach(line=>{
+      ctx.fillText(line,1500,textY);
+      textY += lineHeight;
+    });
+
+    const commentatorElement = document.getElementById("commentatorTextIG");
+    const commentatorText = commentatorElement.textContent;
+
+    if (commentatorText) {
+      const commentatorStyle = window.getComputedStyle(commentatorElement);
+      ctx.font = commentatorStyle.fontSize + " Rubik";
+      ctx.fillStyle = commentatorStyle.color;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = style.fontSize + " Rubik";
-
-      words.forEach(word => {
-        const testLine = currentLine ? currentLine + " " + word : word;
-        const metrics = ctx.measureText(testLine);
-
-        if (metrics.width > maxWidth && currentLine !== "") {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          currentLine = testLine;
-        }
-      });
-
-      if (currentLine) lines.push(currentLine);
-
-      const lineHeight = parseFloat(style.lineHeight);
-      const centerY = 2520;
-      const totalHeight = (lines.length - 1) * lineHeight;
-      let textY = centerY - totalHeight / 2;
-
-      lines.forEach(line => {
-        ctx.fillText(line, 1500, textY);
-        textY += lineHeight;
-      });
-
-      downloadCanvas(canvas, bgNameIG + "_Upload.jpg");
+      ctx.fillText(commentatorText, 1500, 2810);
     }
 
-    const overlaySrc = document.getElementById("graphicsOverlayIG").getAttribute("src");
-
-    if (overlaySrc) {
-      const gfx = new Image();
-      gfx.onload = function() {
-        ctx.drawImage(gfx, 0, 0, 3000, 3000);
-        drawIGText();
-      };
-      gfx.src = overlaySrc;
-    } else {
-      drawIGText();
-    }
+    downloadCanvas(canvas,bgNameIG+"_Upload.jpg");
 
   }
 }
@@ -624,9 +740,8 @@ function updatePreviewScales() {
 }
 
 window.addEventListener("DOMContentLoaded", function() {
-  if (GRAPHICS_YT !== "UC_Graphics.png") {
-    document.getElementById("graphicsOverlayYT").src = GRAPHICS_YT;
-  }
+  updateCommentatorVisibility();
+  updateGraphicsByShow();
   updatePreviewScales();
 });
 
