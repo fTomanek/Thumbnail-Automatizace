@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Thumbnail Generator</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
+
+<style>
+body {
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: sans-serif;
+}
+
+.controls {
+  width: 100%;
+  height: auto;
+  margin: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+}
+
+#bgUploads{
+  display: flex;
+  gap: 20px;
+}
+
+
+#thumbnailYT{
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+#thumbnailIG{
+  position: relative;
+  width: 3000px;
+  height: 3000px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  justify-content: center;
+  justify-items: center;
+}
+
+#titleTextYT {
+  position: absolute;
+  width: 840px;
+  top: 620px;
+  right: 117px;
+  text-align: right;
+  color: white;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 73px;
+  line-height: 1.1;
+  white-space: pre-line;
+  letter-spacing: -0.5px;
+}
+
+#titleTextIG {
+  position: absolute;
+  width: 2550px;
+  height: auto;
+  top: 2520px;
+  left: 50%;
+  text-align: center;
+  color: rgb(0, 0, 0);
+  transform: translate(-50%, -50%);
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 180px;
+  line-height: 1;
+  white-space: pre-line;
+}
+
+#styleIndicator {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 28px;
+  padding: 12px 20px;
+  text-align: center;
+  align-content: center;
+  border-radius: 8px;
+  margin-top: 10px;
+  color: white;
+}
+
+.style-1 {
+  background-color: #2ecc71;
+}
+
+.style-2 {
+  background-color: #e74c3c;
+}
+
+.style-3 {
+  background-color: #3c72e7;
+}
+
+.controls *{
+  width: 80%;
+  height: 50px;
+  margin-bottom: 20px;
+  justify-self: center;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+
+#bgUploadYT::file-selector-button, #bgUploadIG::file-selector-button {
+  width: 100%;
+  height: 50px;
+}
+
+#titleInput{
+  margin-top: 30px;
+}
+
+#downloadSeparate{
+  display: flex;
+  gap: 20px;
+  height: 35px;
+}
+#downloadSeparate *{
+  height: 35px;
+  background-color: rgb(193, 193, 193);
+  font-size: 13px;
+}
+
+
+
+</style>
+</head>
+
+<body>
+
+<div class="controls">
+  <div id="bgUploads">
+    <input type="file" id="bgUploadYT" accept="image/*">
+    <input type="file" id="bgUploadIG" accept="image/*">
+  </div>
+  
+  <textarea id="titleInput" rows="3" cols="40" placeholder="Enter title"></textarea>
+
+  <div id="styleIndicator">1 LINE</div>
+
+  <button id="generateBtn" onclick="generate()">Generate</button>
+    <div id="downloadSeparate" >
+      <button onclick="downloadYT()">Download YT</button>
+      <button onclick="downloadIG()">Download IG</button>
+    </div>
+  <button onclick="downloadBoth()">Download</button>
+
+</div>
+
+<div id="thumbnailYT">
+    <div id="titleTextYT"></div>
+</div>
+
+<div id="thumbnailIG">
+    <div id="titleTextIG"></div>
+</div>
+
+
+
+<script>
+let bgImageYT = "";
+let bgImageIG = "";
+let bgNameYT = "thumbnail";
+let bgNameIG = "thumbnail";
+
+document.getElementById("bgUploadYT").addEventListener("change", function(e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+
+  // store file name without extension
+  bgNameYT = file.name.replace(/\.[^/.]+$/, "");
+
+  reader.onload = function(event) {
+    bgImageYT = event.target.result;
+    document.getElementById("thumbnailYT").style.backgroundImage = `url(${bgImageYT})`;
+  };
+
+  reader.readAsDataURL(file);
+});
+
+document.getElementById("bgUploadIG").addEventListener("change", function(e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+
+  // store file name without extension
+  bgNameIG = file.name.replace(/\.[^/.]+$/, "");
+
+  reader.onload = function(event) {
+    bgImageIG = event.target.result;
+    document.getElementById("thumbnailIG").style.backgroundImage = `url(${bgImageIG})`;
+  };
+
+  reader.readAsDataURL(file);
+});
+
+// Auto-generate instantly when text changes
+const titleInput = document.getElementById("titleInput");
+
+titleInput.addEventListener("input", function() {
+  generate();
+});
+
+function generate() {
+  const rawInput = document.getElementById("titleInput").value.trim();
+  const upperText = rawInput.toUpperCase();
+  const titleElementYT = document.getElementById("titleTextYT");
+  const titleElementIG = document.getElementById("titleTextIG");
+  const indicator = document.getElementById("styleIndicator");
+
+  // Add quotes as one single text
+  titleElementYT.textContent = "„" + upperText + ".“";
+  // Instagram uses the same text but without quotes
+  titleElementIG.textContent = upperText;
+  titleElementYT.style.whiteSpace = "pre-line";
+
+
+  // Set YT default style
+  titleElementYT.style.fontSize = "73px";
+
+  indicator.className = "";
+  indicator.textContent = "1 LINE";
+  indicator.classList.add("style-1");
+
+  // Wait for DOM update to check overflow
+  // Get the computed style height for 1 line, 2 lines, and 3 lines
+  // We'll use the clientHeight of the titleElement to compare
+  // Height threshold for 1 line: allow up to 1 line of text at 73px, etc.
+  // The element's height should not exceed 1x, 2x, or 3x of its font size * line-height
+  // Use requestAnimationFrame to wait for the DOM to update
+  requestAnimationFrame(() => {
+    // Get computed line height in px
+    const computedStyle = window.getComputedStyle(titleElementYT);
+    const fontSize1 = 73, fontSize2 = 60, fontSize3 = 52;
+    const lineHeight = parseFloat(computedStyle.lineHeight) || 1.1 * fontSize1;
+    // The titleElement's clientHeight
+    let h = titleElementYT.clientHeight;
+    // For 1 line: should fit within 1 line
+    let fits = h <= Math.ceil(lineHeight * 1.05); // small fudge
+    if (!fits) {
+      // Try 2 Line style
+      titleElementYT.style.fontSize = fontSize2 + "px";
+      indicator.className = "";
+      indicator.textContent = "2 LINE";
+      indicator.classList.add("style-2");
+      requestAnimationFrame(() => {
+        const style2 = window.getComputedStyle(titleElementYT);
+        const lh2 = parseFloat(style2.lineHeight) || 1.1 * fontSize2;
+        let h2 = titleElementYT.clientHeight;
+        let fits2 = h2 <= Math.ceil(lh2 * 2.05);
+        if (!fits2) {
+          // Try 3 Line style
+          titleElementYT.style.fontSize = fontSize3 + "px";
+          indicator.className = "";
+          indicator.textContent = "3 LINE";
+          indicator.classList.add("style-3");
+          // No further checks needed; 3 Line is the smallest
+        }
+      });
+    }
+  });
+}
+
+function downloadCanvas(canvas, filename){
+  canvas.toBlob(function(blob){
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+  },"image/jpeg",0.95);
+}
+
+function downloadYT(){
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 1920;
+  canvas.height = 1080;
+
+  const img = new Image();
+  img.src = bgImageYT;
+
+  img.onload = function(){
+
+    ctx.drawImage(img,0,0,1920,1080);
+
+    const textElement = document.getElementById("titleTextYT");
+    const text = textElement.textContent.split("\n");
+
+    const style = window.getComputedStyle(textElement);
+
+    ctx.fillStyle = "white";
+    ctx.textAlign = "right";
+    ctx.font = style.fontSize + " Rubik";
+
+    const lineHeight = parseFloat(style.lineHeight);
+
+    let y = 620;
+
+    text.forEach(line=>{
+      ctx.fillText(line,1920-117,y);
+      y += lineHeight;
+    });
+
+    downloadCanvas(canvas,bgNameYT+"_Upload.jpg");
+
+  }
+}
+
+function downloadIG(){
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 3000;
+  canvas.height = 3000;
+
+  const img = new Image();
+  img.src = bgImageIG;
+
+  img.onload = function(){
+
+    ctx.drawImage(img,0,0,3000,3000);
+
+    const textElement = document.getElementById("titleTextIG");
+    const rawText = textElement.textContent;
+    const words = rawText.split(" ");
+    const maxWidth = 2550;
+    let lines = [];
+    let currentLine = "";
+
+    words.forEach(word => {
+      const testLine = currentLine ? currentLine + " " + word : word;
+      const metrics = ctx.measureText(testLine);
+
+      if (metrics.width > maxWidth && currentLine !== "") {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    if (currentLine) lines.push(currentLine);
+
+    const style = window.getComputedStyle(textElement);
+
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = style.fontSize + " Rubik";
+
+    const lineHeight = parseFloat(style.lineHeight);
+
+    const centerY = 2520; // same vertical anchor as CSS
+
+    const totalHeight = (lines.length - 1) * lineHeight;
+
+    let y = centerY - totalHeight / 2;
+
+    lines.forEach(line=>{
+      ctx.fillText(line,1500,y);
+      y += lineHeight;
+    });
+
+    downloadCanvas(canvas,bgNameIG+"_Upload.jpg");
+
+  }
+}
+
+function downloadBoth(){
+
+  downloadYT();
+
+  setTimeout(()=>{
+    downloadIG();
+  },400);
+
+}
+</script>
+
+</body>
+</html>
