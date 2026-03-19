@@ -16,7 +16,7 @@ body {
 }
 
 .controls {
-  width: 100%;
+  width: 80%;
   height: auto;
   margin: 40px;
   display: flex;
@@ -33,14 +33,16 @@ body {
   font-weight: 600;
   font-size: 16px;
   border-radius: 10px;
+  
 }
 
 #commentatorWrap select {
   width: 100%;
-  height: 50px;
   font-weight: 600;
   font-size: 16px;
   border-radius: 10px;
+  margin-bottom: 50px;
+  flex-direction: column;
 }
 
 #bgUploads{
@@ -91,12 +93,11 @@ body {
 
 #photoIG {
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 50%;
-  height: 100%;
   width: auto;
-  transform: translate(-50%, -50%);
-  min-width: 100%;
+  height: 2212px;
+  transform: translateX(-50%);
 }
 
 #thumbnailIG{
@@ -128,13 +129,13 @@ body {
 #commentatorTextYT {
   position: absolute;
   width: 840px;
-  top: 930px;
-  right: 117px;
+  top: 862px;
+  right: 119px;
   text-align: right;
   color: white;
   font-family: 'Rubik', sans-serif;
   font-weight: 500;
-  font-size: 40px;
+  font-size: 60px;
   line-height: 1.1;
   white-space: pre-line;
   letter-spacing: -0.5px;
@@ -154,21 +155,30 @@ body {
   font-size: 180px;
   line-height: 1.1;
   white-space: pre-line;
-  color: rebeccapurple;
 }
+#commentatorStripeIG {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 300px;
+  top: 1911px;
+  background: rgba(0, 0, 0, 0.85);
+}
+
 #commentatorTextIG {
   position: absolute;
   width: 2550px;
   height: auto;
-  top: 2820px;
+  top: 2070px;
   left: 50%;
   text-align: center;
-  color: rgb(0, 0, 0);
+  color: white;
   transform: translate(-50%, -50%);
   font-family: 'Rubik', sans-serif;
-  font-weight: 500;
-  font-size: 90px;
+  font-weight: 700;
+  font-size: 150px;
   line-height: 1;
+  letter-spacing: 6px;
   white-space: pre-line;
 }
 
@@ -214,7 +224,7 @@ body {
 }
 
 .controls *{
-  width: 80%;
+  width: 100%;
   height: 50px;
   margin-bottom: 20px;
   justify-self: center;
@@ -224,7 +234,7 @@ body {
 }
 
 
-#bgUploadYT::file-selector-button, #bgUploadIG::file-selector-button {
+#bgUploadShared::file-selector-button {
   width: 100%;
   height: 50px;
 }
@@ -237,7 +247,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 80%;
+  width: 100%;
   margin-bottom: 20px;
   gap: 8px;
   height: auto;
@@ -299,6 +309,10 @@ body {
 <body>
 
 <div class="controls">
+  <div id="bgUploads">
+    <input type="file" id="bgUploadShared" accept="image/*">
+  </div>
+
   <select id="showSelect">
     <option value="">Select show</option>
     <option value="PS">PS</option>
@@ -307,19 +321,18 @@ body {
     <option value="XT">XT</option>
   </select>
 
-  <div id="commentatorWrap" style="display:none; width:80%;">
-    <select id="commentatorSelect">
-      <option value="">Select commentator</option>
-      <option value="Karolina Stonjeková">Karolina Stonjeková</option>
-      <option value="Petr Holec">Petr Holec</option>
-      <option value="Petr Kolář">Petr Kolář</option>
-    </select>
-  </div>
+  <div id="commentatorWrap" style="display:none;">
+  <select id="commentatorSelect"> 
+    <option value="">Select commentator</option>
+    <option value="Karolina Stonjeková">Karolina Stonjeková</option>
+    <option value="Petr Holec">Petr Holec</option>
+    <option value="Petr Kolář">Petr Kolář</option>
+    <option value="__custom__">Custom name</option>
+  </select>
+  <input type="text" id="commentatorCustomInput" placeholder="Write custom commentator name" style="display:none;">
+</div>
 
-  <div id="bgUploads">
-    <input type="file" id="bgUploadYT" accept="image/*">
-    <input type="file" id="bgUploadIG" accept="image/*">
-  </div>
+  <input type="date" id="dateInput">
   
   <textarea id="titleInput" rows="3" cols="40" placeholder="Enter title"></textarea>
 
@@ -359,11 +372,12 @@ body {
 <div class="previewStage square">
   <div class="previewScale" id="previewScaleIG">
     <div id="thumbnailIG">
-        <img id="photoIG" src="" style="display:none;">
-        <img id="graphicsOverlayIG" src="UC_Graphics.png" style="position:absolute;top:0;left:0;width:3000px;height:3000px;pointer-events:none;">
-        <div id="titleTextIG"></div>
-        <div id="commentatorTextIG"></div>
-        <div id="footerTextIG"></div>
+      <img id="photoIG" src="" style="display:none;">
+      <img id="graphicsOverlayIG" src="UC_Graphics.png" style="position:absolute;top:0;left:0;width:3000px;height:3000px;pointer-events:none;">
+      <div id="titleTextIG"></div>
+      <div id="commentatorStripeIG"></div>
+      <div id="commentatorTextIG"></div>
+      <div id="footerTextIG"></div>
     </div>
   </div>
 </div>
@@ -383,11 +397,87 @@ let currentGraphicsYT = "";
 let currentGraphicsIG = "";
 let currentCommentator = "";
 
+
+function getShowCodeFromFilename(filename) {
+  if (!filename) return "";
+
+  const match = filename.trim().toUpperCase().match(/^([A-Z]{2})_/);
+  if (!match) return "";
+
+  const showCode = match[1];
+  const allowedShows = ["PS", "UC", "ZS", "XT"];
+  return allowedShows.includes(showCode) ? showCode : "";
+}
+
+function getCommentatorFromFilename(filename) {
+  if (!filename) return "";
+
+  const parts = filename.trim().split("_");
+  if (parts.length < 3) return "";
+
+  const commentatorId = parts.slice(2).join("_").toLowerCase();
+
+  const commentatorMap = {
+    stonjekova: "Karolina Stonjeková",
+    holec: "Petr Holec",
+    kolar: "Petr Kolář"
+  };
+
+  return commentatorMap[commentatorId] || "";
+}
+
+function applyCommentatorSelection(commentatorName) {
+  const select = document.getElementById("commentatorSelect");
+  const customInput = document.getElementById("commentatorCustomInput");
+
+  if (!commentatorName || !select) return;
+
+  const availableOptions = Array.from(select.options).map(option => option.value);
+
+  if (availableOptions.includes(commentatorName)) {
+    select.value = commentatorName;
+    customInput.value = "";
+    customInput.style.display = "none";
+    currentCommentator = commentatorName;
+  }
+}
+
+function applyShowSelection(showCode) {
+  if (!showCode) return;
+
+  currentShow = showCode;
+  const showSelect = document.getElementById("showSelect");
+  showSelect.value = showCode;
+  updateGraphicsByShow();
+  updateCommentatorVisibility();
+  updateCustomCommentatorVisibility();
+  updateYTVisibility();
+  syncPSImageToIG();
+  generate();
+}
+
 function formatFooterDate(date) {
   const day = String(date.getDate()).padStart(2, "0");
   const month = date.getMonth() + 1;
   const year = String(date.getFullYear());
   return `${day}. ${month}. ${year}`;
+}
+
+function formatDateInputValue(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getSelectedFooterDate() {
+  const dateInput = document.getElementById("dateInput");
+  if (!dateInput || !dateInput.value) {
+    return new Date();
+  }
+
+  const [year, month, day] = dateInput.value.split("-").map(Number);
+  return new Date(year, month - 1, day);
 }
 
 function getFooterShowName(showCode) {
@@ -421,13 +511,28 @@ function updateGraphicsByShow() {
 function updateCommentatorVisibility() {
   const wrap = document.getElementById("commentatorWrap");
   const select = document.getElementById("commentatorSelect");
+  const customInput = document.getElementById("commentatorCustomInput");
 
-  if (currentShow === "PS") {
-    wrap.style.display = "block";
+  if (currentShow === "PS" || currentShow === "XT") {
+    wrap.style.display = "flex";
   } else {
     wrap.style.display = "none";
     select.value = "";
+    customInput.value = "";
+    customInput.style.display = "none";
     currentCommentator = "";
+  }
+}
+
+function updateCustomCommentatorVisibility() {
+  const select = document.getElementById("commentatorSelect");
+  const customInput = document.getElementById("commentatorCustomInput");
+
+  if (select.value === "__custom__") {
+    customInput.style.display = "block";
+    currentCommentator = customInput.value.trim();
+  } else {
+    customInput.style.display = "none";
   }
 }
 
@@ -458,65 +563,96 @@ function syncPSImageToIG() {
   applyPhotoOffset();
 }
 
-document.getElementById("bgUploadYT").addEventListener("change", function(e) {
+
+
+document.getElementById("bgUploadShared").addEventListener("change", function(e) {
   const file = e.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
+  const baseName = file.name.replace(/\.[^/.]+$/, "");
 
-  bgNameYT = file.name.replace(/\.[^/.]+$/, "");
+  bgNameYT = baseName;
+  bgNameIG = baseName;
+
+  const detectedShowCode = getShowCodeFromFilename(baseName);
+  if (detectedShowCode) {
+    applyShowSelection(detectedShowCode);
+  }
+
+  const detectedCommentator = getCommentatorFromFilename(baseName);
+  if (detectedCommentator) {
+    applyCommentatorSelection(detectedCommentator);
+  }
 
   reader.onload = function(event) {
-    bgImageYT = event.target.result;
-    const photoEl = document.getElementById("photoYT");
-    photoEl.src = bgImageYT;
-    photoEl.style.display = "block";
-    // reset offset on new image
+    const imageData = event.target.result;
+
+    bgImageYT = imageData;
+    bgImageIG = imageData;
+
+    const photoElYT = document.getElementById("photoYT");
+    const photoElIG = document.getElementById("photoIG");
+
+    photoElYT.src = bgImageYT;
+    photoElIG.src = bgImageIG;
+
+    if (currentShow !== "UC") {
+      photoElYT.style.display = "block";
+    }
+    photoElIG.style.display = "block";
+
     photoOffsetYT = -720;
     document.getElementById("photoSlider").value = photoOffsetYT;
     applyPhotoOffset();
     syncPSImageToIG();
+    updateCustomCommentatorVisibility();
+    generate();
   };
 
   reader.readAsDataURL(file);
 });
 
-document.getElementById("bgUploadIG").addEventListener("change", function(e) {
-  const file = e.target.files[0];
-  const reader = new FileReader();
 
-  // store file name without extension
-  bgNameIG = file.name.replace(/\.[^/.]+$/, "");
 
-  reader.onload = function(event) {
-    bgImageIG = event.target.result;
-    const photoElIG = document.getElementById("photoIG");
-    photoElIG.src = bgImageIG;
-    photoElIG.style.display = "block";
-    applyPhotoOffset();
-  };
-
-  reader.readAsDataURL(file);
-});
 
 document.getElementById("showSelect").addEventListener("change", function(e) {
   currentShow = e.target.value;
   updateGraphicsByShow();
   updateCommentatorVisibility();
+  updateCustomCommentatorVisibility();
   updateYTVisibility();
   syncPSImageToIG();
   generate();
 });
 
 document.getElementById("commentatorSelect").addEventListener("change", function(e) {
-  currentCommentator = e.target.value;
+  const selectedValue = e.target.value;
+
+  if (selectedValue === "__custom__") {
+    updateCustomCommentatorVisibility();
+  } else {
+    currentCommentator = selectedValue;
+    updateCustomCommentatorVisibility();
+  }
+
+  generate();
+});
+
+document.getElementById("commentatorCustomInput").addEventListener("input", function(e) {
+  currentCommentator = e.target.value.trim();
   generate();
 });
 
 // Auto-generate instantly when text changes
 const titleInput = document.getElementById("titleInput");
+const dateInput = document.getElementById("dateInput");
 
 titleInput.addEventListener("input", function() {
+  generate();
+});
+
+dateInput.addEventListener("input", function() {
   generate();
 });
 
@@ -529,9 +665,10 @@ function applyPhotoOffset() {
   // scale offset proportionally for IG canvas
   const scale = 3000 / 1920;
   const igOffset = photoOffsetYT * scale;
+  const igBaseShift = 660;
 
   if (photoElIG) {
-    photoElIG.style.transform = "translate(calc(-50% + " + igOffset + "px), -50%)";
+    photoElIG.style.transform = "translateX(calc(-50% + " + (igOffset + igBaseShift) + "px))";
   }
 }
 
@@ -559,6 +696,7 @@ function generate() {
   const titleElementIG = document.getElementById("titleTextIG");
   const commentatorElementYT = document.getElementById("commentatorTextYT");
   const commentatorElementIG = document.getElementById("commentatorTextIG");
+  const commentatorStripeIG = document.getElementById("commentatorStripeIG");
   const footerElementIG = document.getElementById("footerTextIG");
   const indicator = document.getElementById("styleIndicator");
 
@@ -570,22 +708,31 @@ function generate() {
   titleElementIG.style.letterSpacing = "0px";
   titleElementIG.style.top = "2520px";
 
-  const commentatorText = currentShow === "PS" && currentCommentator ? currentCommentator : "";
+  const commentatorText = (currentShow === "PS" || currentShow === "XT") && currentCommentator ? currentCommentator : "";
   commentatorElementYT.textContent = commentatorText;
-  commentatorElementIG.textContent = commentatorText;
+  commentatorElementIG.textContent = commentatorText.toUpperCase();
+  commentatorStripeIG.style.display = (currentShow === "PS" || currentShow === "XT") ? "block" : "none";
 
   const footerShow = getFooterShowName(currentShow);
-  const footerDate = formatFooterDate(new Date());
+  const footerDate = formatFooterDate(getSelectedFooterDate());
   footerElementIG.textContent = footerShow + " " + " " + " " + "|" + " " + " " + " " + footerDate;
 
-  // Set YT default style
-  titleElementYT.style.fontSize = "73px";
-  const photoYT = document.getElementById("photoYT");
-  if (currentShow === "UC") {
-    photoYT.style.display = "none";
-  } else if (bgImageYT) {
-    photoYT.style.display = "block";
-  }
+ // Set YT default style
+titleElementYT.style.fontSize = "73px";
+const photoYT = document.getElementById("photoYT");
+const photoIG = document.getElementById("photoIG");
+
+if (currentShow === "UC") {
+  photoYT.style.display = "none";
+} else if (bgImageYT) {
+  photoYT.style.display = "block";
+}
+
+if (bgImageIG) {
+  photoIG.style.display = "block";
+}
+
+photoIG.style.height = currentShow === "UC" ? "2455px" : "2212px";
 
   indicator.className = "";
   indicator.textContent = "1 LINE";
@@ -749,23 +896,34 @@ function downloadIG(){
 
     const scale = 3000 / 1920;
     const igOffset = photoOffsetYT * scale;
+    const igBaseShift = 660;
 
-    // emulate CSS object-fit: cover
-    const coverScale = Math.max(3000 / img.width, 3000 / img.height);
-    const drawWidth = img.width * coverScale;
-    const drawHeight = img.height * coverScale;
+    // UC uses a taller IG image, other shows keep the current height
+    const drawHeight = currentShow === "UC" ? 2455 : 2212;
+    const drawWidth = img.width * (drawHeight / img.height);
 
-    // center image first
+    // center horizontally first
     let x = (3000 - drawWidth) / 2;
-    let y = (3000 - drawHeight) / 2;
 
     // apply horizontal offset (panning)
-    x += igOffset;
+    x += igOffset + igBaseShift;
+
+    // top aligned
+    const y = 0;
 
     ctx.drawImage(img, x, y, drawWidth, drawHeight);
 
-    const textElement = document.getElementById("titleTextIG");
-    const rawText = textElement.textContent;
+    const stripeElement = document.getElementById("commentatorStripeIG");
+    if (stripeElement && window.getComputedStyle(stripeElement).display !== "none") {
+      const stripeStyle = window.getComputedStyle(stripeElement);
+      const stripeTop = parseFloat(stripeStyle.top) || 1911;
+      const stripeHeight = parseFloat(stripeStyle.height) || 300;
+      ctx.fillStyle = stripeStyle.backgroundColor;
+      ctx.fillRect(0, stripeTop, 3000, stripeHeight);
+    }
+
+  const textElement = document.getElementById("titleTextIG");
+  const rawText = textElement.textContent;
     const words = rawText.split(" ");
     const maxWidth = 2550;
     let lines = [];
@@ -811,11 +969,12 @@ function downloadIG(){
 
     if (commentatorText) {
       const commentatorStyle = window.getComputedStyle(commentatorElement);
+      const commentatorTop = parseFloat(commentatorStyle.top) || 2070;
       ctx.font = commentatorStyle.fontSize + " Rubik";
       ctx.fillStyle = commentatorStyle.color;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(commentatorText, 1500, 2810);
+      ctx.fillText(commentatorText, 1500, commentatorTop);
     }
 
     const footerElement = document.getElementById("footerTextIG");
@@ -865,10 +1024,17 @@ function updatePreviewScales() {
 }
 
 window.addEventListener("DOMContentLoaded", function() {
-  updateCommentatorVisibility();
-  updateGraphicsByShow();
-  updateYTVisibility();
-  updatePreviewScales();
+  const dateInput = document.getElementById("dateInput");
+  if (dateInput) {
+    dateInput.value = formatDateInputValue(new Date());
+  }
+
+updateCommentatorVisibility();
+updateCustomCommentatorVisibility();
+updateGraphicsByShow();
+updateYTVisibility();
+updatePreviewScales();
+generate();
 });
 
 window.addEventListener('resize', updatePreviewScales);
