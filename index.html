@@ -328,9 +328,6 @@ body {
     <option value="Petr Holec">Petr Holec</option>
     <option value="Petr Kolář">Petr Kolář</option>
     <option value="Miroslav Korecký">Miroslav Korecký</option>
-    <option value="Vadim Petrov">Vadim Petrov</option>
-    <option value="Vlastimil Tlustý">Vlastimil Tlustý</option>
-    <option value="Roman Šmucler">Roman Šmucler</option>
     <option value="__custom__">Custom name</option>
   </select>
   <input type="text" id="commentatorCustomInput" placeholder="Write custom commentator name" style="display:none;">
@@ -425,10 +422,7 @@ function getCommentatorFromFilename(filename) {
     stonjekova: "Karolina Stonjeková",
     holec: "Petr Holec",
     kolar: "Petr Kolář",
-    korecky: "Miroslav Korecký",
-    petrov: "Vadim Petrov",
-    tlusty: "Vlastimil Tlustý",
-    smucler: "Roman Šmucler"
+    korecky: "Miroslav Korecký"
   };
 
   return commentatorMap[commentatorId] || "";
@@ -904,7 +898,95 @@ function downloadIG(){
 
     const overlaySrc = document.getElementById("graphicsOverlayIG").getAttribute("src");
 
-    function drawIGContent() {
+    function drawOverlayAndFinish() {
+      if (overlaySrc) {
+        const gfx = new Image();
+        gfx.onload = function() {
+          ctx.drawImage(gfx, 0, 0, 3000, 3000);
+          drawTextAndFinish();
+        };
+        gfx.src = overlaySrc;
+      } else {
+        drawTextAndFinish();
+      }
+    }
+
+    function drawTextAndFinish() {
+      const textElement = document.getElementById("titleTextIG");
+      const rawText = textElement.textContent;
+      const style = window.getComputedStyle(textElement);
+
+      ctx.fillStyle = style.color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = style.fontWeight + " " + style.fontSize + " Rubik";
+
+      const words = rawText.split(" ");
+      const maxWidth = parseFloat(style.width) || 2550;
+      let lines = [];
+      let currentLine = "";
+
+      words.forEach(word => {
+        const testLine = currentLine ? currentLine + " " + word : word;
+        const metrics = ctx.measureText(testLine);
+
+        if (metrics.width > maxWidth && currentLine !== "") {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      });
+
+      if (currentLine) lines.push(currentLine);
+
+      const lineHeight = parseFloat(style.lineHeight);
+      const igTop = parseFloat(style.top) || 2520;
+      const totalHeight = (lines.length - 1) * lineHeight;
+      let textY = igTop - totalHeight / 2;
+
+      lines.forEach(line => {
+        ctx.fillText(line, 1500, textY);
+        textY += lineHeight;
+      });
+
+      const stripeElement = document.getElementById("commentatorStripeIG");
+      if (stripeElement && window.getComputedStyle(stripeElement).display !== "none") {
+        const stripeStyle = window.getComputedStyle(stripeElement);
+        const stripeTop = parseFloat(stripeStyle.top) || 1911;
+        const stripeHeight = parseFloat(stripeStyle.height) || 300;
+        ctx.fillStyle = stripeStyle.backgroundColor;
+        ctx.fillRect(0, stripeTop, 3000, stripeHeight);
+      }
+
+      const commentatorElement = document.getElementById("commentatorTextIG");
+      const commentatorText = commentatorElement.textContent;
+
+      if (commentatorText) {
+        const commentatorStyle = window.getComputedStyle(commentatorElement);
+        const commentatorTop = parseFloat(commentatorStyle.top) || 2070;
+        ctx.font = commentatorStyle.fontWeight + " " + commentatorStyle.fontSize + " Rubik";
+        ctx.fillStyle = commentatorStyle.color;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(commentatorText, 1500, commentatorTop);
+      }
+
+      const footerElement = document.getElementById("footerTextIG");
+      const footerText = footerElement.textContent;
+
+      if (footerText) {
+        const footerStyle = window.getComputedStyle(footerElement);
+        const footerTop = parseFloat(footerStyle.top) || 2850;
+        ctx.font = footerStyle.fontWeight + " " + footerStyle.fontSize + " Rubik";
+        ctx.fillStyle = footerStyle.color;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(footerText, 1500, footerTop);
+      }
+
+      downloadCanvas(canvas,bgNameIG+"_Upload.jpg");
+    }
 
     const scale = 3000 / 1920;
     const igOffset = photoOffsetYT * scale;
@@ -924,97 +1006,7 @@ function downloadIG(){
     const y = 0;
 
     ctx.drawImage(img, x, y, drawWidth, drawHeight);
-
-    const stripeElement = document.getElementById("commentatorStripeIG");
-    if (stripeElement && window.getComputedStyle(stripeElement).display !== "none") {
-      const stripeStyle = window.getComputedStyle(stripeElement);
-      const stripeTop = parseFloat(stripeStyle.top) || 1911;
-      const stripeHeight = parseFloat(stripeStyle.height) || 300;
-      ctx.fillStyle = stripeStyle.backgroundColor;
-      ctx.fillRect(0, stripeTop, 3000, stripeHeight);
-    }
-
-    const textElement = document.getElementById("titleTextIG");
-    const rawText = textElement.textContent;
-    const words = rawText.split(" ");
-    const maxWidth = 2550;
-    let lines = [];
-    let currentLine = "";
-
-    words.forEach(word => {
-      const testLine = currentLine ? currentLine + " " + word : word;
-      const metrics = ctx.measureText(testLine);
-
-      if (metrics.width > maxWidth && currentLine !== "") {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = testLine;
-      }
-    });
-
-    if (currentLine) lines.push(currentLine);
-
-    const style = window.getComputedStyle(textElement);
-
-    ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = style.fontSize + " Rubik";
-
-    const lineHeight = parseFloat(style.lineHeight);
-
-    const igTop = parseFloat(window.getComputedStyle(textElement).top) || 2520;
-    const centerY = igTop; // same vertical anchor as current CSS
-
-    const totalHeight = (lines.length - 1) * lineHeight;
-
-    let textY = centerY - totalHeight / 2;
-
-    lines.forEach(line=>{
-      ctx.fillText(line,1500,textY);
-      textY += lineHeight;
-    });
-
-    const commentatorElement = document.getElementById("commentatorTextIG");
-    const commentatorText = commentatorElement.textContent;
-
-    if (commentatorText) {
-      const commentatorStyle = window.getComputedStyle(commentatorElement);
-      const commentatorTop = parseFloat(commentatorStyle.top) || 2070;
-      ctx.font = commentatorStyle.fontSize + " Rubik";
-      ctx.fillStyle = commentatorStyle.color;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(commentatorText, 1500, commentatorTop);
-    }
-
-    const footerElement = document.getElementById("footerTextIG");
-    const footerText = footerElement.textContent;
-
-    if (footerText) {
-      const footerStyle = window.getComputedStyle(footerElement);
-      const footerTop = parseFloat(footerStyle.top) || 2935;
-      ctx.font = footerStyle.fontSize + " Rubik";
-      ctx.fillStyle = footerStyle.color;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(footerText, 1500, footerTop);
-    }
-
-    downloadCanvas(canvas,bgNameIG+"_Upload.jpg");
-    }
-
-    if (overlaySrc) {
-      const gfx = new Image();
-      gfx.onload = function() {
-        ctx.drawImage(gfx, 0, 0, 3000, 3000);
-        drawIGContent();
-      };
-      gfx.src = overlaySrc;
-    } else {
-      drawIGContent();
-    }
+    drawOverlayAndFinish();
 
   }
 }
