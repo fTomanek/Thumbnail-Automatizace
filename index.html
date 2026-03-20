@@ -815,28 +815,59 @@ function downloadCanvas(canvas, filename){
 
 function drawTextYT(ctx) {
   const textElement = document.getElementById("titleTextYT");
-  const text = textElement.textContent.split("\n");
+  const rawText = textElement.textContent;
   const style = window.getComputedStyle(textElement);
 
-  ctx.fillStyle = "white";
+  ctx.fillStyle = style.color;
   ctx.textAlign = "right";
-  ctx.font = style.fontSize + " Rubik";
+  ctx.textBaseline = "top";
+  ctx.font = style.fontWeight + " " + style.fontSize + " Rubik";
 
+  const maxWidth = parseFloat(style.width) || 890;
   const lineHeight = parseFloat(style.lineHeight);
-  let y = 620;
+  const lines = [];
 
-  text.forEach(line => {
-    ctx.fillText(line, 1920 - 117, y);
+  rawText.split("\n").forEach(paragraph => {
+    const words = paragraph.split(" ");
+    let currentLine = "";
+
+    words.forEach(word => {
+      const testLine = currentLine ? currentLine + " " + word : word;
+      const metrics = ctx.measureText(testLine);
+
+      if (metrics.width > maxWidth && currentLine !== "") {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+  });
+
+  let y = parseFloat(style.top) || 620;
+  const x = 1920 - (parseFloat(style.right) || 117);
+
+  lines.forEach(line => {
+    ctx.fillText(line, x, y);
     y += lineHeight;
   });
+
   const commentatorElement = document.getElementById("commentatorTextYT");
   const commentatorText = commentatorElement.textContent;
 
   if (commentatorText) {
     const commentatorStyle = window.getComputedStyle(commentatorElement);
-    ctx.font = commentatorStyle.fontSize + " Rubik";
+    const commentatorX = 1920 - (parseFloat(commentatorStyle.right) || 119);
+    const commentatorY = parseFloat(commentatorStyle.top) || 862;
+    ctx.font = commentatorStyle.fontWeight + " " + commentatorStyle.fontSize + " Rubik";
     ctx.fillStyle = commentatorStyle.color;
-    ctx.fillText(commentatorText, 1920 - 117, 930);
+    ctx.textAlign = "right";
+    ctx.textBaseline = "top";
+    ctx.fillText(commentatorText, commentatorX, commentatorY);
   }
 }
 
