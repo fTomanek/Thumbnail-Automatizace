@@ -813,6 +813,41 @@ function downloadCanvas(canvas, filename){
   },"image/jpeg",0.95);
 }
 
+function measureCanvasTextWithLetterSpacing(ctx, text, letterSpacingPx) {
+  if (!text) return 0;
+  const baseWidth = ctx.measureText(text).width;
+  if (!letterSpacingPx) return baseWidth;
+  return baseWidth + Math.max(0, text.length - 1) * letterSpacingPx;
+}
+
+function wrapCanvasText(text, maxWidth, ctx, letterSpacingPx) {
+  const paragraphs = String(text || "").split("\n");
+  const lines = [];
+
+  paragraphs.forEach(paragraph => {
+    const words = paragraph.split(" ");
+    let currentLine = "";
+
+    words.forEach(word => {
+      const testLine = currentLine ? currentLine + " " + word : word;
+      const testWidth = measureCanvasTextWithLetterSpacing(ctx, testLine, letterSpacingPx);
+
+      if (testWidth > maxWidth && currentLine !== "") {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+  });
+
+  return lines;
+}
+
 function drawTextYT(ctx) {
   const textElement = document.getElementById("titleTextYT");
   const rawText = textElement.textContent;
@@ -952,24 +987,9 @@ function downloadIG(){
       ctx.textBaseline = "middle";
       ctx.font = style.fontWeight + " " + style.fontSize + " Rubik";
 
-      const words = rawText.split(" ");
       const maxWidth = parseFloat(style.width) || 2550;
-      let lines = [];
-      let currentLine = "";
-
-      words.forEach(word => {
-        const testLine = currentLine ? currentLine + " " + word : word;
-        const metrics = ctx.measureText(testLine);
-
-        if (metrics.width > maxWidth && currentLine !== "") {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          currentLine = testLine;
-        }
-      });
-
-      if (currentLine) lines.push(currentLine);
+      const letterSpacing = parseFloat(style.letterSpacing) || 0;
+      const lines = wrapCanvasText(rawText, maxWidth, ctx, letterSpacing);
 
       const lineHeight = parseFloat(style.lineHeight);
       const igTop = parseFloat(style.top) || 2520;
@@ -977,7 +997,20 @@ function downloadIG(){
       let textY = igTop - totalHeight / 2;
 
       lines.forEach(line => {
-        ctx.fillText(line, 1500, textY);
+        if (letterSpacing !== 0) {
+          const lineWidth = measureCanvasTextWithLetterSpacing(ctx, line, letterSpacing);
+          let drawX = 1500 - lineWidth / 2;
+
+          for (const char of line) {
+            ctx.textAlign = "left";
+            ctx.fillText(char, drawX, textY);
+            drawX += ctx.measureText(char).width + letterSpacing;
+          }
+
+          ctx.textAlign = "center";
+        } else {
+          ctx.fillText(line, 1500, textY);
+        }
         textY += lineHeight;
       });
 
