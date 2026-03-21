@@ -703,7 +703,9 @@ function generate() {
   const indicator = document.getElementById("styleIndicator");
 
   // Add quotes as one single text
-  titleElementYT.textContent = "„" + upperText + ".“";
+  const endsWithStrongPunctuation = /[?!]$/.test(upperText);
+  const ytEnding = endsWithStrongPunctuation ? "“" : ".“";
+  titleElementYT.textContent = "„" + upperText + ytEnding;
   // Instagram uses uppercase by default
   titleElementIG.textContent = upperText;
   titleElementYT.style.whiteSpace = "pre-line";
@@ -922,12 +924,12 @@ function downloadYT(){
       gfx.onload = function() {
         ctx.drawImage(gfx,0,0,1920,1080);
         drawTextYT(ctx);
-        downloadCanvas(canvas,bgNameYT+"_Upload.jpg");
+        downloadCanvas(canvas,bgNameYT+"_YT.jpg");
       };
       gfx.src = overlaySrc;
     } else {
       drawTextYT(ctx);
-      downloadCanvas(canvas,bgNameYT+"_Upload.jpg");
+      downloadCanvas(canvas,bgNameYT+"_YT.jpg");
     }
   }
 
@@ -1049,7 +1051,7 @@ function downloadIG(){
         ctx.fillText(footerText, 1500, footerTop);
       }
 
-      downloadCanvas(canvas,bgNameIG+"_Upload.jpg");
+      downloadCanvas(canvas,bgNameIG+"_IG.jpg");
     }
 
     const scale = 3000 / 1920;
